@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bypass Stratix Injection Detection</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+        body{background:#1a1f3b;color:#fff;overflow-x:hidden;position:relative;min-height:100vh;padding-top:20px;overflow-y:scroll}
+        body::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+        body{-ms-overflow-style:none!important;scrollbar-width:none!important}
+        .bg-blur{position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1f3b;filter:blur(8px);z-index:-2;transform:scale(1.1)}
+        .web-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;opacity:.25;pointer-events:none}
+        .particle{position:fixed;width:6px;height:6px;background:radial-gradient(circle,rgba(168,85,247,.85),rgba(124,58,237,.45));border-radius:50%;pointer-events:none;animation:particleBurst .85s ease-out forwards;box-shadow:0 0 10px rgba(168,85,247,.7);z-index:9999}
+        @keyframes particleBurst{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}}
+        .container{max-width:480px;margin:0 auto;padding:20px;position:relative;z-index:2}
+        .top-bar{display:flex;justify-content:center;align-items:center;padding:12px 20px;position:fixed;top:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:99;background:rgba(26,31,59,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);border-radius:0 0 20px 20px;opacity:0;visibility:hidden;transform:translateY(-100%);transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+        .top-bar.show{opacity:1;visibility:visible;transform:translateY(0)}
+        .top-bar h1{font-size:1.15rem;font-weight:700;white-space:nowrap;background:linear-gradient(120deg,#ff9a9e,#f48fb1,#ce93d8,#b39ddb,#9333ea);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite}
+        .hero{margin-bottom:30px;animation:fadeInUp 1s ease}
+        .hero h1{font-size:2.2rem;font-weight:700;margin-bottom:6px;line-height:1.2;background:linear-gradient(120deg,#ff9a9e,#f48fb1,#ce93d8,#b39ddb,#9333ea);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite}
+        .hero .eng-sub{font-size:.95rem;color:rgba(255,255,255,.5);letter-spacing:1px;margin-bottom:10px}
+        .hero p{font-size:1rem;color:rgba(255,255,255,.6);letter-spacing:.5px}
+        .advantage-line{margin-top:12px;min-height:22px;font-size:.95rem;color:rgba(255,255,255,.7);display:flex;align-items:center}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+        .action-buttons{display:flex;flex-direction:column;gap:15px;margin-bottom:40px;animation:fadeInUp 1s ease .2s backwards;position:relative;z-index:3}
+        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.2);transform:scale(0);animation:rippleAnim .6s linear forwards;pointer-events:none}
+        @keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+        .btn{padding:16px;border-radius:20px;font-size:1.1rem;font-weight:600;text-align:center;cursor:pointer;transition:all .3s ease;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);color:#fff;background:linear-gradient(120deg,#9333ea,#7c3aed);background-size:400% 100%;animation:gradientShift 4s ease infinite;box-shadow:0 8px 25px rgba(147,51,234,.3);position:relative;overflow:hidden}
+        .btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 30px rgba(147,51,234,.5)}
+        .features h2{font-size:1.5rem;margin-bottom:20px;background:linear-gradient(120deg,#ff9a9e,#ce93d8,#9333ea);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite}
+        .feature-list{display:flex;flex-direction:column;gap:14px}
+        .feature-item{background:rgba(255,255,255,.04);border-radius:22px;padding:22px;backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.12);box-shadow:0 8px 32px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.1),0 0 0 1px rgba(255,255,255,.05);transition:all .7s cubic-bezier(.22,1,.36,1);opacity:0;transform:translateY(50px) scale(.92);position:relative;z-index:2}
+        .feature-item.show{opacity:1;transform:translateY(0) scale(1)}
+        .feature-item:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);transform:translateY(-5px) scale(1.015);box-shadow:0 12px 36px rgba(0,0,0,.18)}
+        .feature-item h3{font-size:1.15rem;margin-bottom:6px;background:linear-gradient(120deg,#ff9a9e,#ce93d8,#9333ea);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite}
+        .feature-item p{color:rgba(255,255,255,.7);font-size:.95rem}
+        .type-cursor{display:inline-block;width:2px;height:1.1em;background:#fff;margin-left:4px;animation:blink .7s infinite;vertical-align:middle}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    </style>
+</head>
+<body>
+
+<div class="bg-blur"></div>
+<canvas class="web-bg" id="webBg"></canvas>
+
+<div class="container">
+    <div class="top-bar" id="topBar"><h1 id="globalTitle">绕过Stratix注入检测</h1></div>
+    <div class="hero">
+        <h1 id="mainTitle"></h1>
+        <div class="eng-sub">The Best Stratix Bypass Solution</div>
+        <p id="subtitle">最强Stratix解决方案</p>
+        <div class="advantage-line" id="advantageType"></div>
+    </div>
+    <div class="action-buttons"><button class="btn" id="getBtn">立即获取</button></div>
+    <div class="features">
+        <h2 id="featuresTitle">为何选择我们？</h2>
+        <div class="feature-list" id="featureList">
+            <div class="feature-item"><h3>完美绕过</h3><p>一点都检测不到</p></div>
+            <div class="feature-item"><h3>超低价格</h3><p>不超过5RMB</p></div>
+            <div class="feature-item"><h3>自动售卖</h3><p>无需等待</p></div>
+            <div class="feature-item"><h3>用户较多</h3><p>30+用户</p></div>
+            <div class="feature-item"><h3>极其稳定</h3><p>比虚拟机 XP沙盒稳定高效</p></div>
+            <div class="feature-item"><h3>超棒售后</h3><p>一对一解答，问题秒处理</p></div>
+            <div class="feature-item"><h3>开放代理</h3><p>免费合作，轻松赚钱</p></div>
+            <div class="feature-item"><h3>教程详细</h3><p>小白也能一键上手</p></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== 检测微信/QQ内置浏览器，自动跳转默认浏览器 ==========
+function checkBrowser(){
+    var u = navigator.userAgent.toLowerCase();
+    var isWeChat = u.indexOf('micromessenger') > -1;
+    var isQQ = u.indexOf(' qq') > -1 || u.indexOf('txmini') > -1;
+    var isQQBrowser = u.indexOf('qqbrowser') > -1;
+
+    if(isWeChat || isQQ || isQQBrowser){
+        var url = window.location.href;
+        if(/android/i.test(u)){
+            window.location.href = "intent://"+url.replace(/^https?:\/\//,'')+"#Intent;scheme=http;end;";
+            setTimeout(function(){alert("请点击右上角 → 在浏览器中打开");},500);
+        }else{
+            alert("请点击右上角 → 在浏览器(Safari)中打开");
+        }
+    }
+}
+checkBrowser();
+
+// ========== 以下为正常功能代码，无加密无Bug ==========
+const topBar = document.getElementById('topBar');
+window.addEventListener('scroll',()=>{
+    if(window.scrollY>60)topBar.classList.add('show');
+    else topBar.classList.remove('show');
+});
+
+const featureItems = document.querySelectorAll('.feature-item');
+const observer = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>entry.target.classList.toggle('show',entry.isIntersecting));
+},{threshold:0.1});
+featureItems.forEach(item=>observer.observe(item));
+
+const getBtn = document.getElementById('getBtn');
+const jumpUrl = 'https://www.youbaopu.com/item/axa7ka';
+getBtn.addEventListener('click',e=>{
+    const rect = getBtn.getBoundingClientRect();
+    const x = e.clientX-rect.left;
+    const y = e.clientY-rect.top;
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+    ripple.style.left = x+'px';
+    ripple.style.top = y+'px';
+    getBtn.appendChild(ripple);
+    setTimeout(()=>ripple.remove(),600);
+    window.location.href = jumpUrl;
+});
+
+const webBg = document.getElementById('webBg');
+const ctx = webBg.getContext('2d');
+let points=[];
+function resizeCanvas(){webBg.width=window.innerWidth;webBg.height=window.innerHeight;initPoints();}
+function initPoints(){
+    points=[];
+    for(let i=0;i<38;i++){
+        points.push({
+            x:Math.random()*webBg.width,
+            y:Math.random()*webBg.height,
+            vx:(Math.random()-0.5)*0.25,
+            vy:(Math.random()-0.5)*0.25
+        });
+    }
+}
+function animateWeb(){
+    ctx.clearRect(0,0,webBg.width,webBg.height);
+    ctx.strokeStyle='rgba(255,255,255,0.08)';
+    ctx.lineWidth=1;
+    points.forEach(p=>{
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x<0||p.x>webBg.width)p.vx*=-1;
+        if(p.y<0||p.y>webBg.height)p.vy*=-1;
+    });
+    for(let i=0;i<points.length;i++){
+        for(let j=i+1;j<points.length;j++){
+            const dx=points[i].x-points[j].x;
+            const dy=points[i].y-points[j].y;
+            const d=Math.hypot(dx,dy);
+            if(d<180){ctx.beginPath();ctx.moveTo(points[i].x,points[i].y);ctx.lineTo(points[j].x,points[j].y);ctx.stroke();}
+        }
+    }
+    requestAnimationFrame(animateWeb);
+}
+
+document.addEventListener('click',e=>{
+    for(let i=0;i<8;i++){
+        const p=document.createElement('div');
+        p.classList.add('particle');
+        p.style.left=e.clientX+'px';
+        p.style.top=e.clientY+'px';
+        const angle=(Math.PI*2*i)/8;
+        const dist=35+Math.random()*25;
+        p.style.setProperty('--tx',Math.cos(angle)*dist+'px');
+        p.style.setProperty('--ty',Math.sin(angle)*dist+'px');
+        document.body.appendChild(p);
+        setTimeout(()=>p.remove(),850);
+    }
+});
+
+async function typeMainTitle(){
+    const line1="绕过Stratix";
+    const line2="注入检测";
+    const el=document.getElementById('mainTitle');
+    el.innerHTML="";
+    for(let i=0;i<line1.length;i++){el.innerHTML+=line1[i];await new Promise(r=>setTimeout(r,60));}
+    el.innerHTML+="<br>";
+    for(let i=0;i<line2.length;i++){el.innerHTML+=line2[i];await new Promise(r=>setTimeout(r,60));}
+    const cursor=document.createElement('span');
+    cursor.className='type-cursor';
+    el.appendChild(cursor);
+    setTimeout(()=>cursor.remove(),1200);
+}
+
+async function typeAdvantageLoop(){
+    const box=document.getElementById('advantageType');
+    const texts=["注入无检测","稳定不闪退","全设备兼容","自动秒发货"];
+    while(true){
+        for(let t of texts){
+            for(let i=0;i<t.length;i++){
+                box.innerHTML=t.slice(0,i+1)+'<span class="type-cursor"></span>';
+                await new Promise(r=>setTimeout(r,70));
+            }
+            await new Promise(r=>setTimeout(r,1600));
+            for(let i=t.length;i>=0;i--){
+                box.innerHTML=t.slice(0,i)+'<span class="type-cursor"></span>';
+                await new Promise(r=>setTimeout(r,40));
+            }
+            await new Promise(r=>setTimeout(r,300));
+        }
+    }
+}
+
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+animateWeb();
+
+setTimeout(()=>{
+    typeMainTitle();
+    setTimeout(typeAdvantageLoop,1800);
+},300);
+</script>
+</body>
+</html>
