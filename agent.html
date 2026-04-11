@@ -286,7 +286,7 @@
             <span class="level-name">⭐ 普通代理</span>
             <span class="level-price">售卖价 ≥ 1.3 RMB</span>
         </div>
-        <div class="level-desc">初始代理等级，适合新手入门</div>
+        <div class="level-desc">初始代理等级，新手入门等级</div>
         <div class="upgrade-rule">📈 销售额达到10 → 升级金牌代理</div>
     </div>
 
@@ -296,7 +296,7 @@
             <span class="level-price">售卖价 ≥ 0.91 RMB</span>
         </div>
         <div class="level-desc">更高利润空间，更具竞争力</div>
-        <div class="upgrade-rule">📈 销售额达到20 → 升级核心代理</div>
+        <div class="upgrade-rule">📈 销售额达到30 → 升级核心代理</div>
     </div>
 
     <div class="level-card">
@@ -311,48 +311,14 @@
     <!-- 额外升级方式：花销售额的钱升级 -->
     <div class="extra-upgrade">
         <p>💡 <strong>快速升级通道</strong> 💡</p>
-        <p>可花费「销售额累计金额」直接升级代理等级：</p>
-        <p style="font-size:0.8rem; margin-top:6px;">普通→金牌：消耗 <span class="highlight">10销售额</span> &nbsp;|&nbsp; 金牌→核心：消耗 <span class="highlight">20销售额</span></p>
-        <p style="font-size:0.75rem; margin-top:5px; opacity:0.7;">（消耗后销售额扣除，等级即刻提升）</p>
+        <p>可花费「所需销售额」的RMB直接升级代理等级：</p>
+        <p style="font-size:0.8rem; margin-top:6px;">普通→金牌：需要 <span class="highlight">10RMB</span> &nbsp;|&nbsp; 金牌→核心：需要 <span class="highlight">20RMB</span></p>
     </div>
 
     <!-- 按钮区域: 如何对接 + 更多 -->
     <div class="btn-group">
         <button class="btn btn-primary" id="howToBtn">📘 如何对接</button>
-        <button class="btn btn-outline" id="moreBtn">📋 更多 <span id="moreArrow">▼</span></button>
     </div>
-
-    <!-- 更多面板：详细展示等级售卖规则 + 升级详情 -->
-    <div id="morePanel" class="more-content">
-        <div class="level-item-compact">
-            <div class="level-row">
-                <span class="level-title">🔹 普通代理</span>
-                <span class="level-sell">可售卖 ≥ 1.3</span>
-            </div>
-            <div class="upgrade-condition">✅ 达标升级：累计销售额达到10 → 自动晋升金牌代理</div>
-        </div>
-        <div class="level-item-compact">
-            <div class="level-row">
-                <span class="level-title">🔸 金牌代理</span>
-                <span class="level-sell">可售卖 ≥ 0.91</span>
-            </div>
-            <div class="upgrade-condition">✅ 达标升级：累计销售额达到20 → 自动晋升核心代理</div>
-        </div>
-        <div class="level-item-compact">
-            <div class="level-row">
-                <span class="level-title">🔹 核心代理</span>
-                <span class="level-sell">可售卖 ≥ 0.78</span>
-            </div>
-            <div class="upgrade-condition">🏅 顶级权限，享受最低供货价 + 专属对接群</div>
-        </div>
-        <div style="background: rgba(199,125,255,0.1); border-radius: 14px; padding: 12px; margin-top: 8px;">
-            <p style="font-size: 0.8rem; text-align: center; color:#ffd6a5;">✨ 花销售额的钱升级 ✨</p>
-            <p style="font-size: 0.75rem; text-align: center;">• 普通→金牌：扣除10销售额（需当前有≥10销售额）<br>
-            • 金牌→核心：扣除20销售额（需当前有≥20销售额）<br>
-            <span style="color: #aaa;">升级后保留剩余销售额，等级立即生效</span></p>
-        </div>
-        <div style="margin-top: 12px; text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5);">
-            代理后台可查看销售额数据并申请手动升级
         </div>
     </div>
 </div>
@@ -371,19 +337,7 @@
         window.open(HOW_URL, '_blank');
     });
     
-    // 更多按钮: 展开/收起详细内容
-    let moreVisible = false;
-    moreBtn.addEventListener('click', () => {
-        moreVisible = !moreVisible;
-        if (moreVisible) {
-            morePanel.classList.add('show');
-            moreArrow.style.transform = 'rotate(180deg)';
-            moreArrow.style.display = 'inline-block';
-        } else {
-            morePanel.classList.remove('show');
-            moreArrow.style.transform = 'rotate(0deg)';
-        }
-    });
+   
     
     // 确保没有任何关闭弹窗的逻辑，用户只能通过浏览器返回/关闭标签页来退出
     // 禁用body点击关闭和任何close功能（已彻底移除关闭按钮与close逻辑）
