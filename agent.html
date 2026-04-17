@@ -1,360 +1,591 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<!-- 网站图标 -->
+    <link rel="icon" type="image/png" sizes="256x256" href="/icon.png">
+    <link rel="shortcut icon" href="/icon.png">
+    <link rel="apple-touch-icon" href="/icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>代理对接 | 等级说明</title>
+    <title>代理对接 | 等级体系</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
         }
 
+        /* 深邃星空背景 */
         body {
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(12px);
+            background: radial-gradient(ellipse at 30% 40%, #0f1228, #0a0c1a);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
+            position: relative;
         }
 
-        /* 弹窗卡片 - 简洁干净 */
-        .agent-modal {
-            max-width: 420px;
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: rgba(26, 31, 59, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 28px 24px 32px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5);
-            animation: fadeInScale 0.25s ease-out;
+            height: 100%;
+            background: radial-gradient(circle at 70% 20%, rgba(124, 58, 237, 0.08), transparent 60%);
+            pointer-events: none;
         }
 
-        @keyframes fadeInScale {
+        .agent-container {
+            max-width: 540px;
+            width: 100%;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            animation: fadeGlide 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+        }
+
+        @keyframes fadeGlide {
             from {
                 opacity: 0;
-                transform: scale(0.94);
+                transform: translateY(20px) scale(0.98);
             }
             to {
                 opacity: 1;
-                transform: scale(1);
+                transform: translateY(0) scale(1);
             }
         }
 
-        /* 渐变文字 */
+        /* 标题渐变 */
         .gradient-text {
-            background: linear-gradient(90deg, #ffd6a5, #ff8fab, #c77dff, #7b2cbf);
-            background-size: 300% 100%;
+            background: linear-gradient(105deg, #FFE6B0, #FFB347, #FF8C42, #D096FF, #9D4EDD, #FFB347);
+            background-size: 300% auto;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: gradientFlow 4s ease infinite;
+            animation: auroraWave 5s ease infinite;
+            font-weight: 800;
         }
 
-        @keyframes gradientFlow {
+        @keyframes auroraWave {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        .agent-modal h2 {
-            font-size: 1.7rem;
+        .agent-container h2 {
+            font-size: 2rem;
             margin-bottom: 12px;
-            font-weight: 700;
+            font-weight: 800;
             text-align: center;
+            letter-spacing: -0.3px;
         }
 
         .sub-message {
             text-align: center;
-            color: rgba(255, 255, 255, 0.75);
-            font-size: 0.9rem;
+            color: rgba(230, 220, 250, 0.85);
+            font-size: 0.92rem;
+            margin-bottom: 28px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(199, 125, 255, 0.25);
+        }
+
+        /* 等级卡片 */
+        .level-flow-card {
+            background: rgba(15, 20, 40, 0.55);
+            backdrop-filter: blur(10px);
+            border-radius: 36px;
+            padding: 20px 20px;
             margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed rgba(255,255,255,0.15);
+            border: 1px solid rgba(199, 125, 255, 0.3);
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
-        /* 等级卡片区域 */
-        .level-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            transition: all 0.2s;
+        .level-flow-card:hover {
+            border-color: rgba(199, 125, 255, 0.65);
+            background: rgba(25, 30, 60, 0.7);
+            transform: translateY(-2px);
         }
 
-        .level-header {
+        .level-row-main {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .level-badge {
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .level-name {
-            font-size: 1.2rem;
+            font-size: 1.45rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #e5d5ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-tag {
+            background: rgba(124, 58, 237, 0.5);
+            padding: 6px 18px;
+            border-radius: 60px;
+            font-size: 0.85rem;
             font-weight: 700;
+            border: 1px solid rgba(199, 125, 255, 0.7);
+            color: #FFE5B4;
         }
 
-        .level-price {
-            background: rgba(147, 51, 234, 0.3);
-            padding: 4px 12px;
+        .level-desc-light {
+            color: rgba(235, 225, 255, 0.8);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            line-height: 1.45;
+        }
+
+        .upgrade-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0 8px;
+            color: #D9A7FF;
+            font-weight: 500;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .arrow-icon {
+            font-size: 1rem;
+            background: rgba(199,125,255,0.2);
+            padding: 4px 16px;
             border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid rgba(199, 125, 255, 0.4);
         }
 
-        .level-desc {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-        }
-
-        .upgrade-rule {
-            font-size: 0.8rem;
-            color: #c77dff;
+        .upgrade-condition-badge {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 28px;
+            padding: 10px 14px;
             margin-top: 8px;
-            padding-top: 6px;
-            border-top: 1px dotted rgba(255,255,255,0.1);
-        }
-
-        .highlight {
-            color: #ffd6a5;
-            font-weight: 600;
-        }
-
-        /* 额外升级方式 */
-        .extra-upgrade {
-            background: rgba(124, 58, 237, 0.15);
-            border-radius: 18px;
-            padding: 14px;
-            margin: 10px 0 20px;
-            text-align: center;
-            border: 1px solid rgba(199, 125, 255, 0.3);
-        }
-
-        .extra-upgrade p {
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.85);
+            color: #FFE0A3;
+            display: inline-block;
+            width: auto;
+            border-left: 4px solid #c77dff;
+            font-weight: 500;
         }
 
-        .extra-upgrade strong {
-            color: #ff8fab;
+        .fast-lane {
+            background: linear-gradient(125deg, rgba(124, 58, 237, 0.25), rgba(199, 125, 255, 0.15));
+            border-radius: 32px;
+            padding: 18px 16px;
+            margin: 18px 0 28px;
+            text-align: center;
+            border: 1px solid rgba(255, 180, 80, 0.5);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
         }
 
-        /* 按钮区域 */
+        .fast-lane p {
+            font-size: 0.9rem;
+            color: rgba(255, 248, 225, 0.95);
+        }
+
+        .fast-lane strong {
+            color: #FFD966;
+            font-weight: 800;
+        }
+
+        .highlight-num {
+            color: #FFE484;
+            font-weight: 800;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 10px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        /* 按钮组 */
         .btn-group {
             display: flex;
-            gap: 14px;
-            margin-top: 8px;
+            gap: 16px;
+            margin-top: 12px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .btn {
+            position: relative;
             flex: 1;
-            min-width: 130px;
-            padding: 12px 18px;
-            border-radius: 40px;
-            font-weight: 600;
+            min-width: 125px;
+            padding: 13px 18px;
+            border-radius: 60px;
+            font-weight: 700;
             font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.2s ease;
             text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            border: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(120deg, #9333ea, #7c3aed);
-            color: white;
-            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.05);
-        }
-
-        .btn-outline {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white;
-        }
-
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* 更多按钮内容区域（初始隐藏） */
-        .more-content {
-            display: none;
-            margin-top: 16px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .more-content.show {
-            display: block;
-            animation: fadeSlide 0.3s ease;
-        }
-
-        @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .level-item-compact {
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .level-row {
-            display: flex;
-            justify-content: space-between;
+            display: inline-flex;
             align-items: center;
-            flex-wrap: wrap;
+            justify-content: center;
             gap: 8px;
-            margin-bottom: 6px;
+            border: none;
+            overflow: hidden;
+            background: rgba(12, 15, 35, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            /* 确保变换原点为中心 */
+            transform-origin: center;
         }
 
-        .level-title {
+        /* 按钮文字渐变 */
+        .btn-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(
+                105deg,
+                #F9E0A0 0%,
+                #FFB347 18%,
+                #FF8C42 35%,
+                #D79BFF 55%,
+                #C77DFF 72%,
+                #AA6DC9 88%,
+                #F9E0A0 100%
+            );
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: metallicFlow 6s ease infinite;
             font-weight: 700;
-            font-size: 1rem;
         }
 
-        .level-sell {
-            background: rgba(0,0,0,0.4);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-family: monospace;
+        @keyframes metallicFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .upgrade-condition {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.6);
+        .btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(199, 125, 255, 0.8);
+            box-shadow: 0 12px 28px rgba(124, 58, 237, 0.4);
+            background: rgba(20, 25, 50, 0.8);
         }
 
-        .btn-more {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            margin-top: 12px;
-            width: 100%;
+        /* 点击时的非线性放大动画 — 弹性缓动 */
+        .btn-click-animate {
+            animation: elasticPop 0.45s cubic-bezier(0.34, 1.3, 0.55, 1) forwards !important;
         }
 
-        .btn-more span {
-            display: inline-block;
-            transition: transform 0.2s;
+        @keyframes elasticPop {
+            0% {
+                transform: scale(1);
+            }
+            40% {
+                transform: scale(1.08);
+            }
+            70% {
+                transform: scale(0.98);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
-        .btn-more.active span {
-            transform: rotate(180deg);
+        /* 禁用按钮点击期间的额外点击 */
+        .btn.loading {
+            pointer-events: none;
+            cursor: wait;
         }
 
-        /* 关闭按钮已移除，没有关闭入口 */
+        .info-footer {
+            text-align: center;
+            margin-top: 34px;
+            font-size: 0.7rem;
+            color: rgba(220, 210, 255, 0.45);
+            border-top: 1px solid rgba(199, 125, 255, 0.2);
+            padding-top: 20px;
+        }
+
+        @media (max-width: 520px) {
+            body { padding: 16px; }
+            .level-badge { font-size: 1.3rem; }
+            .level-name { font-size: 1.2rem; }
+            .price-tag { font-size: 0.7rem; padding: 4px 12px; }
+            .btn { min-width: 105px; padding: 10px 12px; }
+            .btn-text { font-size: 0.8rem; }
+            .agent-container h2 { font-size: 1.75rem; }
+        }
     </style>
 </head>
 <body>
-<div class="agent-modal">
-    <h2 class="gradient-text">🤝 代理对接</h2>
+<div class="agent-container">
+    <h2 class="gradient-text">🤝 代理对接 · 极光体系</h2>
     <div class="sub-message">
-        代理只需要宣传、对接卡网并且<span style="color:#c77dff; font-weight:600;">代理免费</span>
+        代理免费入驻 · 自主宣传对接卡网 &nbsp;✨&nbsp; <span style="color:#FFD966; font-weight:600;">零门槛晋升</span>
     </div>
 
-    <!-- 等级简要展示 (三个等级核心信息) -->
-    <div class="level-card">
-        <div class="level-header">
-            <span class="level-name">⭐ 普通代理</span>
-            <span class="level-price">售卖价 ≥ 1.3 RMB</span>
+    <!-- 普通代理 -->
+    <div class="level-flow-card">
+        <div class="level-row-main">
+            <div class="level-badge">
+                <span>⭐</span>
+                <span class="level-name">普通代理</span>
+            </div>
+            <div class="price-tag">可定价 ≥ 1.3 RMB</div>
         </div>
-        <div class="level-desc">初始代理等级，新手入门等级</div>
-        <div class="upgrade-rule">📈 销售额达到10 → 升级金牌代理</div>
-    </div>
-
-    <div class="level-card">
-        <div class="level-header">
-            <span class="level-name">🏅 金牌代理</span>
-            <span class="level-price">售卖价 ≥ 0.91 RMB</span>
+        <div class="level-desc-light">初始等级 · 轻量起步，灵活扩展资源</div>
+        <div class="upgrade-arrow">
+            <span class="arrow-icon">⬇ 晋升门槛 ⬇</span>
         </div>
-        <div class="level-desc">更高利润空间，更具竞争力</div>
-        <div class="upgrade-rule">📈 销售额达到30 → 升级核心代理</div>
-    </div>
-
-    <div class="level-card">
-        <div class="level-header">
-            <span class="level-name">💎 核心代理</span>
-            <span class="level-price">售卖价 ≥ 0.78 RMB</span>
+        <div class="upgrade-condition-badge">
+            📊 累计销售额 ≥ 10 元 或 直接支付 <strong style="color:#FFC107;">10 RMB</strong> → 直升金牌代理
         </div>
-        <div class="level-desc">最高级别代理，最低成本价</div>
-        <div class="upgrade-rule">🏆 顶级权益，尊享专属扶持</div>
     </div>
 
-    <!-- 额外升级方式：花销售额的钱升级 -->
-    <div class="extra-upgrade">
-        <p>💡 <strong>快速升级通道</strong> 💡</p>
-        <p>可花费「所需销售额」的RMB直接升级代理等级：</p>
-        <p style="font-size:0.8rem; margin-top:6px;">普通→金牌：需要 <span class="highlight">10RMB</span> &nbsp;|&nbsp; 金牌→核心：需要 <span class="highlight">20RMB</span></p>
+    <!-- 金牌代理 -->
+    <div class="level-flow-card">
+        <div class="level-row-main">
+            <div class="level-badge">
+                <span>🏅</span>
+                <span class="level-name">金牌代理</span>
+            </div>
+            <div class="price-tag">可定价 ≥ 0.91 RMB</div>
+        </div>
+        <div class="level-desc-light">高利润空间 · 专属竞争优势，加速裂变</div>
+        <div class="upgrade-arrow">
+            <span class="arrow-icon">⬇ 晋升门槛 ⬇</span>
+        </div>
+        <div class="upgrade-condition-badge">
+            📈 累计销售额 ≥ 30 元 或 直接支付 <strong style="color:#FFC107;">20 RMB</strong> → 直升核心代理
+        </div>
     </div>
 
-    <!-- 按钮区域: 如何对接 + 更多 -->
+    <!-- 核心代理 -->
+    <div class="level-flow-card">
+        <div class="level-row-main">
+            <div class="level-badge">
+                <span>💎</span>
+                <span class="level-name">核心代理</span>
+            </div>
+            <div class="price-tag">可定价 ≥ 0.78 RMB</div>
+        </div>
+        <div class="level-desc-light">最高等级代理 · 最低成本价，顶级资源扶持</div>
+        <div class="upgrade-arrow">
+            <span class="arrow-icon">🏆 顶级权益</span>
+        </div>
+        <div class="upgrade-condition-badge" style="border-left-color: #FFAA44;">
+            ✨ 专属客服 · 辅助推广 · 高额分润
+        </div>
+    </div>
+
+    <!-- 快速升级通道 -->
+    <div class="fast-lane">
+        <p>⚡ <strong>✨ 极速升级通道 (支付直通)</strong> ⚡</p>
+        <p>无需等待销售额，<span class="highlight-num">直接支付对应金额</span> 秒升代理等级：</p>
+        <p style="font-size:0.85rem; margin-top: 10px;">
+            ⭐ 普通 → 🏅 金牌：<strong class="highlight-num">10 RMB</strong> &nbsp;&nbsp;|&nbsp;&nbsp;
+            🏅 金牌 → 💎 核心：<strong class="highlight-num">20 RMB</strong>
+        </p>
+    </div>
+
+    <!-- 三个按钮：弹性放大动画 + 波纹扩散 + 完成后跳转 -->
     <div class="btn-group">
-        <button class="btn btn-primary" id="howToBtn">📘 如何对接</button>
+        <button class="btn" id="howToBtn">
+            <span class="btn-text">📘 如何对接</span>
+        </button>
+        <button class="btn" id="upgradeBtn">
+            <span class="btn-text">🚀 升级代理</span>
+        </button>
+        <button class="btn" id="backMainBtn">
+            <span class="btn-text">🏠 返回主站</span>
+        </button>
     </div>
-        </div>
+
+    <div class="info-footer">
+        🌟 永久代理资格 | 零隐藏费用 | 弹性跃迁交互
     </div>
 </div>
 
 <script>
-    // 如何对接跳转链接
+    // 链接配置
     const HOW_URL = 'https://share.weiyun.com/YZahw1AK';
-    
+    const UPGRADE_URL = 'https://qm.qq.com/q/GOmMpXWnmg';
+    const MAIN_SITE_URL = 'https://rgstratix.pages.dev';
+
+    // 获取按钮
     const howBtn = document.getElementById('howToBtn');
-    const moreBtn = document.getElementById('moreBtn');
-    const morePanel = document.getElementById('morePanel');
-    const moreArrow = document.getElementById('moreArrow');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    const backMainBtn = document.getElementById('backMainBtn');
+
+    // 动画时长 (与CSS动画时长一致)
+    const ANIMATION_DURATION = 450;
+
+    /**
+     * 创建波纹效果（从点击位置扩散）
+     */
+    function createRipple(element, event) {
+        const rect = element.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        
+        const ripple = document.createElement('span');
+        ripple.style.position = 'absolute';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.style.width = '0px';
+        ripple.style.height = '0px';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'radial-gradient(circle, rgba(199,125,255,0.85) 0%, rgba(157,78,221,0.5) 40%, rgba(199,125,255,0) 80%)';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transition = 'width 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2), height 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity 0.45s ease';
+        ripple.style.opacity = '0.9';
+        ripple.style.zIndex = '20';
+        
+        // 确保按钮有相对定位
+        const positionStyle = window.getComputedStyle(element).position;
+        if (positionStyle === 'static') {
+            element.style.position = 'relative';
+        }
+        element.style.overflow = 'hidden';
+        element.appendChild(ripple);
+        
+        // 展开波纹
+        requestAnimationFrame(() => {
+            ripple.style.width = '360px';
+            ripple.style.height = '360px';
+            ripple.style.opacity = '0';
+        });
+        
+        // 动画结束后移除波纹元素
+        setTimeout(() => {
+            if (ripple && ripple.remove) ripple.remove();
+        }, ANIMATION_DURATION);
+    }
+
+    /**
+     * 执行非线性放大动画（弹性缓动）
+     */
+    function playElasticAnimation(element) {
+        return new Promise((resolve) => {
+            // 添加动画类
+            element.classList.add('btn-click-animate');
+            
+            // 动画结束后清理并 resolve
+            const onAnimationEnd = () => {
+                element.classList.remove('btn-click-animate');
+                element.removeEventListener('animationend', onAnimationEnd);
+                resolve();
+            };
+            
+            element.addEventListener('animationend', onAnimationEnd, { once: true });
+            
+            // 保险：如果动画未触发，超时后强行 resolve
+            setTimeout(() => {
+                if (element.classList.contains('btn-click-animate')) {
+                    element.classList.remove('btn-click-animate');
+                    resolve();
+                }
+            }, ANIMATION_DURATION + 50);
+        });
+    }
+
+    /**
+     * 为按钮绑定完整交互：
+     * 1. 弹性放大动画（非线性）
+     * 2. 波纹扩散效果
+     * 3. 动画全部完成后执行跳转
+     */
+    function bindButtonWithAdvancedAnimation(button, url, openInNewTab = true) {
+        if (!button) return;
+        
+        // 克隆并替换，避免重复监听
+        const newButton = button.cloneNode(true);
+        button.parentNode?.replaceChild(newButton, button);
+        
+        newButton.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            
+            // 如果正在动画中，忽略本次点击
+            if (newButton.classList.contains('loading')) return;
+            
+            // 标记为 loading，防止重复点击
+            newButton.classList.add('loading');
+            
+            // 1. 先创建波纹（视觉反馈立即出现）
+            createRipple(newButton, event);
+            
+            // 2. 播放弹性放大动画（非线性缓动）
+            await playElasticAnimation(newButton);
+            
+            // 3. 动画全部完成后，执行页面跳转
+            if (openInNewTab) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+                window.location.href = url;
+            }
+            
+            // 注意：跳转后页面会离开，无需移除 loading 状态
+            // 但为了防止跳转延迟时的重复点击，loading 类保留也无影响
+        });
+        
+        return newButton;
+    }
     
-    // 如何对接: 打开新页面
-    howBtn.addEventListener('click', () => {
-        window.open(HOW_URL, '_blank');
+    // 绑定三个按钮（弹性动画 + 波纹 → 完成后跳转）
+    const newHowBtn = bindButtonWithAdvancedAnimation(howBtn, HOW_URL, true);
+    const newUpgradeBtn = bindButtonWithAdvancedAnimation(upgradeBtn, UPGRADE_URL, true);
+    const newBackBtn = bindButtonWithAdvancedAnimation(backMainBtn, MAIN_SITE_URL, false);
+    
+    // 修复 bfcache（往返缓存）导致按钮文字消失的问题
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            console.log('页面从缓存恢复，重新激活文字渐变');
+            const allBtnTexts = document.querySelectorAll('.btn-text');
+            allBtnTexts.forEach(textSpan => {
+                textSpan.style.animation = 'none';
+                textSpan.offsetHeight; // 强制重排
+                textSpan.style.animation = 'metallicFlow 6s ease infinite';
+            });
+            
+            // 清理所有按钮的 loading 状态
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.classList.remove('loading', 'btn-click-animate');
+            });
+        }
     });
     
-   
-    
-    // 确保没有任何关闭弹窗的逻辑，用户只能通过浏览器返回/关闭标签页来退出
-    // 禁用body点击关闭和任何close功能（已彻底移除关闭按钮与close逻辑）
-    // 阻止点击事件冒泡可能导致的误判（但不需要关闭，仅保证弹窗稳定）
-    const modal = document.querySelector('.agent-modal');
-    modal.addEventListener('click', (e) => {
-        e.stopPropagation();
+    // 页面加载完成后确保所有文字渐变正常
+    document.addEventListener('DOMContentLoaded', () => {
+        const allBtnTexts = document.querySelectorAll('.btn-text');
+        allBtnTexts.forEach(textSpan => {
+            textSpan.style.animation = 'metallicFlow 6s ease infinite';
+        });
     });
     
-    // 禁止body上的任何关闭动作
-    document.body.addEventListener('click', (e) => {
-        // 什么也不做，防止意外关闭
-        e.stopPropagation();
-    });
+    // 移动端轻触震动反馈（可选，增强高级感）
+    if ('vibrate' in navigator) {
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => navigator.vibrate?.(8));
+        });
+    }
     
-    // 可选: 添加一个很 subtle 的提示，用户只能通过浏览器标签关闭
-    console.log('代理对接弹窗 - 无关闭按钮，请通过浏览器关闭标签页');
+    console.log('代理页面已加载 — 点击按钮：非线性弹性放大动画 + 波纹扩散，动画完成后跳转');
 </script>
 </body>
 </html>

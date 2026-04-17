@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <link rel="icon" type="image/png" sizes="256x256" href="/icon.png">
+    <link rel="shortcut icon" href="/icon.png">
+    <link rel="apple-touch-icon" href="/icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>绕过stratix注入检测 | 最强方案</title>
+    <title>绕过Stratix注入检测 | 最强方案</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -19,23 +24,7 @@
             position: relative;
             min-height: 100vh;
             padding-top: 20px;
-        }
-
-        /* 隐藏滚动条但保持功能 */
-        body::-webkit-scrollbar {
-            display: none;
-            width: 0;
-            height: 0;
-        }
-        body {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .container, .top-bar {
-            opacity: 1;
-            visibility: visible;
-            transition: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .bg-blur {
@@ -47,12 +36,12 @@
             transform: scale(1.1);
         }
 
-        /* 流光渐变动画 (完全对标RGStratix风格) */
         @keyframes gradientFlow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+
         .gradient-text {
             background: linear-gradient(90deg, #ffd6a5, #ff8fab, #c77dff, #7b2cbf);
             background-size: 300% 100%;
@@ -60,23 +49,6 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: gradientFlow 4s ease infinite;
-        }
-
-        /* 粒子效果保持不变（点击效果） */
-        .particle {
-            position: fixed;
-            width: 6px;
-            height: 6px;
-            background: radial-gradient(circle, rgba(168,85,247,.85), rgba(124,58,237,.45));
-            border-radius: 50%;
-            pointer-events: none;
-            animation: particleBurst .85s ease-out forwards;
-            box-shadow: 0 0 10px rgba(168,85,247,.7);
-            z-index: 9999;
-        }
-        @keyframes particleBurst {
-            0% { opacity: 1; transform: translate(0,0) scale(1); }
-            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
         }
 
         .container {
@@ -87,7 +59,6 @@
             z-index: 2;
         }
 
-        /* 顶部标题栏（纯展示，无多余按钮） */
         .top-bar {
             display: flex;
             justify-content: center;
@@ -121,7 +92,11 @@
 
         .hero {
             margin-bottom: 30px;
-            animation: fadeInUp 1s;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .hero h1 {
             font-size: 2.2rem;
@@ -138,7 +113,6 @@
         .hero p {
             font-size: 1rem;
             color: rgba(255,255,255,.6);
-            letter-spacing: .5px;
         }
         .advantage-line {
             margin-top: 12px;
@@ -148,22 +122,18 @@
             display: flex;
             align-items: center;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
-        /* 按钮组：两个按钮并排 */
         .action-buttons {
             display: flex;
             flex-direction: row;
             gap: 16px;
             margin-bottom: 40px;
-            animation: fadeInUp 1s .2s backwards;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
             position: relative;
             z-index: 3;
         }
-        /* 通用按钮基底 */
+
+        /* 按钮样式 - 背景色 #2a2f4e + 边框 */
         .btn {
             flex: 1;
             padding: 14px 10px;
@@ -172,67 +142,63 @@
             font-weight: 600;
             text-align: center;
             cursor: pointer;
-            transition: all .3s ease;
-            backdrop-filter: blur(12px);
             position: relative;
             overflow: hidden;
-            background: linear-gradient(120deg, #9333ea, #7c3aed);
-            background-size: 400% 100%;
-            animation: gradientFlow 4s infinite;
-            border: none;
-            box-shadow: 0 8px 25px rgba(147,51,234,.3);
+            transition: transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1), background 0.2s ease;
+            
+            /* 背景色恢复为之前的 #2a2f4e */
+            background: #2a2f4e;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+        
         .btn span {
             display: inline-block;
-            font-weight: 600;
-            background: transparent;
-            -webkit-background-clip: unset;
-            background-clip: unset;
-            -webkit-text-fill-color: white;
-            color: white;
-        }
-        .btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(147,51,234,.5);
-        }
-
-        /* 代理对接按钮：高透明背景 + 描边（独立样式，保留渐变文字或普通文字？按需求“高透明背景有描边”，文字清晰可见） */
-        .btn-outline {
-            background: rgba(255, 255, 255, 0.08);   /* 高透明玻璃背景 */
-            backdrop-filter: blur(12px);
-            border: 1.5px solid rgba(255, 255, 255, 0.55);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            animation: none;  /* 不需要流光动画，保持透明纯净 */
-            background-size: auto;
-        }
-        .btn-outline span {
+            font-weight: 700;
             background: linear-gradient(90deg, #ffd6a5, #ff8fab, #c77dff, #7b2cbf);
             background-size: 300% 100%;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 700;
-            animation: gradientFlow 4s ease infinite;  /* 保留文字渐变，更美观但完全符合要求 “代理对接”高透明描边背景 */
+            animation: gradientFlow 4s ease infinite;
         }
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.85);
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        
+        .btn-outline {
+            background: #222746;
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
-
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            background: #3a3f62;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 点击缩放动画 - 非线性 */
+        .btn-click-animate {
+            animation: btnPop 0.28s cubic-bezier(0.2, 1.3, 0.4, 1) forwards !important;
+        }
+        
+        @keyframes btnPop {
+            0% { transform: scale(1); }
+            45% { transform: scale(0.96); }
+            70% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        
         .ripple {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255,255,255,.3);
+            background: rgba(255, 255, 255, 0.4);
             transform: scale(0);
-            animation: rippleAnim .6s linear forwards;
+            animation: rippleAnim 0.5s linear forwards;
             pointer-events: none;
         }
         @keyframes rippleAnim {
-            to { transform: scale(4); opacity: 0; }
+            to { transform: scale(5); opacity: 0; }
         }
-
+        
         .features h2 {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -248,18 +214,13 @@
             padding: 22px;
             backdrop-filter: blur(22px);
             border: 1px solid rgba(255,255,255,.12);
-            box-shadow: 0 8px 32px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 1px rgba(255,255,255,.05);
-            transition: all 0.3s cubic-bezier(.22,1,.36,1);
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            position: relative;
-            z-index: 2;
+            box-shadow: 0 8px 32px rgba(0,0,0,.12);
+            transition: all 0.25s ease;
         }
         .feature-item:hover {
             background: rgba(255,255,255,.08);
             border-color: rgba(255,255,255,.18);
-            transform: translateY(-5px) scale(1.015);
-            box-shadow: 0 12px 36px rgba(0,0,0,.18);
+            transform: translateY(-5px);
         }
         .feature-item h3 {
             font-size: 1.15rem;
@@ -269,7 +230,7 @@
             color: rgba(255,255,255,.7);
             font-size: .95rem;
         }
-
+        
         .type-cursor {
             display: inline-block;
             width: 2px;
@@ -283,12 +244,11 @@
             0%,100% { opacity: 1; }
             50% { opacity: 0; }
         }
-
-        /* 浏览器遮罩层（QQ内限制） */
+        
         .browser-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(26,31,59,.92);
+            background: rgba(26,31,59,.94);
             backdrop-filter: blur(12px);
             z-index: 99999;
             display: flex;
@@ -298,7 +258,7 @@
             padding: 0 24px;
             visibility: hidden;
             opacity: 0;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
         }
         .browser-overlay.show {
             visibility: visible;
@@ -308,7 +268,7 @@
             max-width: 380px;
             width: 100%;
             text-align: center;
-            animation: fadeInUp .8s backwards;
+            animation: fadeInUp 0.5s backwards;
         }
         .overlay-box h2 {
             font-size: 1.4rem;
@@ -330,54 +290,40 @@
             margin-bottom: 20px;
             word-break: break-all;
         }
-        /* 移除旧代理toast相关样式，因为改为跳转页面不再需要复杂弹窗，但保留部分旧样式以防残留 */
-        .agent-toast {
+        
+        .particle {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) scale(0.9);
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(20px);
-            padding: 14px 24px;
-            border-radius: 40px;
-            color: white;
-            font-size: 0.95rem;
-            font-weight: 500;
-            z-index: 100000;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.4);
-            opacity: 0;
-            transition: opacity 0.2s, transform 0.2s;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(168,85,247,.85), rgba(124,58,237,.45));
+            border-radius: 50%;
             pointer-events: none;
-            white-space: nowrap;
+            animation: particleBurst .85s ease-out forwards;
+            z-index: 9999;
         }
-        .agent-toast.show-toast {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
+        @keyframes particleBurst {
+            0% { opacity: 1; transform: translate(0,0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
         }
+        
         @media (max-width: 480px) {
-            .agent-toast { white-space: normal; width: 80%; text-align: center; font-size: 0.85rem; }
             .action-buttons { gap: 12px; }
         }
     </style>
 </head>
 <body>
 
-<!-- 已完全移除加载动画：无 loader-wrapper -->
-
-<!-- QQ环境浏览器遮罩 -->
 <div class="browser-overlay" id="browserOverlay">
     <div class="overlay-box">
         <h2 class="gradient-text">请在浏览器打开</h2>
         <p>因为QQ内置浏览器限制，商店链接无法打开，请复制链接前往浏览器打开使用</p>
         <div class="copy-link-box" id="jumpLink">https://faka.longfei1.com/item/tp0zqq</div>
-        <button class="btn" id="copyBtn"><span class="gradient-text">复制链接</span></button>
+        <button class="btn" id="copyBtn"><span>复制链接</span></button>
     </div>
 </div>
 
 <div class="bg-blur"></div>
 
-<!-- 纯净标题栏（无按钮） -->
 <div class="top-bar" id="topBar">
     <h1 class="gradient-text">绕过Stratix注入检测</h1>
 </div>
@@ -390,15 +336,14 @@
         <div class="advantage-line" id="advantageType"></div>
     </div>
 
-    <!-- 两个按钮: 前往获取 + 代理对接(高透明背景有描边) 代理对接点击直接跳转 agent.html -->
     <div class="action-buttons">
         <button class="btn" id="getBtn"><span>前往获取</span></button>
         <button class="btn btn-outline" id="agentBtn"><span>代理对接</span></button>
     </div>
 
     <div class="features">
-        <h2 id="featuresTitle" class="gradient-text">为何选择我们？</h2>
-        <div class="feature-list" id="featureList">
+        <h2 class="gradient-text">为何选择我们？</h2>
+        <div class="feature-list">
             <div class="feature-item"><h3 class="gradient-text">完美绕过</h3><p>一点都检测不到</p></div>
             <div class="feature-item"><h3 class="gradient-text">超低价格</h3><p>不超过5RMB</p></div>
             <div class="feature-item"><h3 class="gradient-text">自动售卖</h3><p>无需等待</p></div>
@@ -412,168 +357,221 @@
 </div>
 
 <script>
-    const delay = ms => new Promise(r => setTimeout(r, ms));
-    const $ = id => document.getElementById(id);
-    const targetUrl = 'https://faka.longfei1.com/item/tp0zqq';
-    // 代理对接跳转目标页面
-    const agentPageUrl = 'agent.html';
-
-    // 环境判断（QQ内置浏览器/微信等）
-    function isQQEnv() {
-        const u = navigator.userAgent.toLowerCase();
-        return u.includes('micromessenger') 
-            || u.includes(' qq') 
-            || u.includes('txmini') 
-            || u.includes('qqbrowser');
-    }
-
-    // 复制链接功能 (遮罩层内)
-    const copyBtn = $('copyBtn');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(targetUrl);
-                const span = copyBtn.querySelector('span');
-                const originalText = span.textContent;
-                span.textContent = '复制成功！';
-                await delay(1500);
-                span.textContent = originalText;
-            } catch (e) {
-                console.warn('复制失败', e);
-            }
-        });
-    }
-
-    // 前往获取按钮逻辑 (含波纹特效 & QQ环境检测)
-    const getBtn = $('getBtn');
-    if (getBtn) {
-        getBtn.addEventListener('click', (e) => {
-            // 波纹效果
-            const ripple = document.createElement('span');
-            ripple.className = 'ripple';
-            const rect = getBtn.getBoundingClientRect();
-            ripple.style.left = `${e.clientX - rect.left}px`;
-            ripple.style.top = `${e.clientY - rect.top}px`;
-            getBtn.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-            
-            if (isQQEnv()) {
-                $('browserOverlay').classList.add('show');
-            } else {
-                window.location.href = targetUrl;
-            }
-        });
-    }
-
-    // 代理对接按钮: 修改为直接跳转 agent.html（完全按照要求：把点击代理对接弹窗改成跳转agent.html）
-    // 移除所有之前的弹窗/模态框逻辑，实现干净跳转，同时保留波纹效果和基础用户体验。
-    const agentBtn = $('agentBtn');
-    if (agentBtn) {
-        agentBtn.addEventListener('click', (e) => {
-            // 添加波纹特效，保持视觉反馈一致性
-            const ripple = document.createElement('span');
-            ripple.className = 'ripple';
-            const rect = agentBtn.getBoundingClientRect();
-            ripple.style.left = `${e.clientX - rect.left}px`;
-            ripple.style.top = `${e.clientY - rect.top}px`;
-            agentBtn.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-            
-            // 直接跳转至 agent.html 页面（当前目录下）
-            // 采用 window.location.href 实现页面跳转
-            window.location.href = agentPageUrl;
-        });
-    }
-    
-    // 顶部栏滚动显示
-    window.addEventListener('scroll', () => {
-        const topBar = $('topBar');
-        if (topBar) {
-            topBar.classList.toggle('show', window.scrollY > 60);
-        }
-    });
-    
-    // 特征卡片：已经去除了滑动弹出动画，无需IntersectionObserver做show类，所有卡片初始可见且无translate变换
-    // 保持原有hover特效即可，无卡片“弹出”入场动画（已经移除相关show逻辑，且样式默认可见）
-    
-    // 打字机效果: 标题 "绕过Stratix" + "注入检测"
-    async function typeTitle() {
-        const t = $('mainTitle');
-        if (!t) return;
-        const line1 = '绕过Stratix';
-        const line2 = '注入检测';
-        t.innerHTML = '';
-        for (const c of line1) {
-            t.innerHTML += c;
-            await delay(60);
-        }
-        t.innerHTML += '<br>';
-        for (const c of line2) {
-            t.innerHTML += c;
-            await delay(60);
-        }
-        const cur = document.createElement('span');
-        cur.className = 'type-cursor';
-        t.appendChild(cur);
-        await delay(1200);
-        cur.remove();
-    }
-    
-    // 优势轮播打字
-    async function typeAdvantage() {
-        const el = $('advantageType');
-        if (!el) return;
-        const list = ["注入无检测", "稳定不闪退", "全设备兼容", "自动秒发货"];
-        while (true) {
-            for (const str of list) {
-                for (let i = 0; i <= str.length; i++) {
-                    el.innerHTML = str.slice(0, i) + '<span class="type-cursor"></span>';
-                    await delay(70);
-                }
-                await delay(1600);
-                for (let i = str.length; i >= 0; i--) {
-                    el.innerHTML = str.slice(0, i) + '<span class="type-cursor"></span>';
-                    await delay(40);
-                }
-                await delay(300);
-            }
-        }
-    }
-    
-    // 页面加载完成后执行 (无loader动画，直接显示所有内容)
-    window.addEventListener('load', () => {
-        // 触发打字效果
-        setTimeout(async () => {
-            await typeTitle();
-            typeAdvantage();
-        }, 200);
+    (function() {
+        const targetUrl = 'https://faka.longfei1.com/item/tp0zqq';
+        const agentPageUrl = 'agent.html';
         
-        // 确保顶部栏初始根据滚动位置设置一次
-        if (window.scrollY > 60) {
-            $('topBar')?.classList.add('show');
+        function isRestrictedEnv() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.includes('micromessenger') || ua.includes(' qq') || ua.includes('txmini') || ua.includes('qqbrowser');
         }
-        // 卡片无任何入场动画，直接可见。
-    });
-    
-    // 粒子点击效果 (维持原有效果，全局点击)
-    document.addEventListener('click', (e) => {
-        // 为了防止在按钮跳转时产生过多粒子但无伤大雅
-        for (let i = 0; i < 8; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = `${e.clientX}px`;
-            p.style.top = `${e.clientY}px`;
-            const angle = (Math.PI * 2 * i) / 8;
-            const dist = 35 + Math.random() * 25;
-            p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-            p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 850);
+        
+        const $ = (id) => document.getElementById(id);
+        
+        function addRipple(btn, e) {
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            const rect = btn.getBoundingClientRect();
+            const x = (e && e.clientX) ? e.clientX - rect.left : rect.width / 2;
+            const y = (e && e.clientY) ? e.clientY - rect.top : rect.height / 2;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            btn.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 500);
         }
-    });
-    
-    // 增加一个简单的控制台友好提示，无其他副作用
-    console.log('页面已加载 | 代理对接按钮已改为直接跳转 agent.html');
+        
+        function animateAndNavigate(btn, targetLocation) {
+            if (!btn) return;
+            btn.classList.add('btn-click-animate');
+            addRipple(btn, null);
+            
+            btn.addEventListener('animationend', () => {
+                btn.classList.remove('btn-click-animate');
+                window.location.href = targetLocation;
+            }, { once: true });
+            
+            setTimeout(() => {
+                if (btn.classList.contains('btn-click-animate')) {
+                    btn.classList.remove('btn-click-animate');
+                    window.location.href = targetLocation;
+                }
+            }, 320);
+        }
+        
+        function bindInteractions() {
+            // 复制按钮
+            const copyBtn = $('copyBtn');
+            if (copyBtn) {
+                const newCopy = copyBtn.cloneNode(true);
+                copyBtn.parentNode.replaceChild(newCopy, copyBtn);
+                const freshCopy = $('copyBtn');
+                freshCopy.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    freshCopy.classList.add('btn-click-animate');
+                    addRipple(freshCopy, e);
+                    setTimeout(() => freshCopy.classList.remove('btn-click-animate'), 300);
+                    try {
+                        await navigator.clipboard.writeText(targetUrl);
+                        const span = freshCopy.querySelector('span');
+                        const original = span.innerText;
+                        span.innerText = '复制成功！';
+                        setTimeout(() => { span.innerText = original; }, 1500);
+                    } catch (err) { console.warn(err); }
+                });
+            }
+            
+            // 前往获取按钮
+            const getBtn = $('getBtn');
+            if (getBtn) {
+                const newGet = getBtn.cloneNode(true);
+                getBtn.parentNode.replaceChild(newGet, getBtn);
+                const freshGet = $('getBtn');
+                freshGet.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    addRipple(freshGet, e);
+                    if (isRestrictedEnv()) {
+                        const overlay = $('browserOverlay');
+                        if (overlay) {
+                            overlay.classList.add('show');
+                            freshGet.classList.add('btn-click-animate');
+                            setTimeout(() => freshGet.classList.remove('btn-click-animate'), 280);
+                        }
+                        return;
+                    }
+                    animateAndNavigate(freshGet, targetUrl);
+                });
+            }
+            
+            // 代理对接按钮
+            const agentBtn = $('agentBtn');
+            if (agentBtn) {
+                const newAgent = agentBtn.cloneNode(true);
+                agentBtn.parentNode.replaceChild(newAgent, agentBtn);
+                const freshAgent = $('agentBtn');
+                freshAgent.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    addRipple(freshAgent, e);
+                    animateAndNavigate(freshAgent, agentPageUrl);
+                });
+            }
+            
+            // 顶部栏滚动
+            window.addEventListener('scroll', () => {
+                const topBar = $('topBar');
+                if (topBar) {
+                    if (window.scrollY > 60) topBar.classList.add('show');
+                    else topBar.classList.remove('show');
+                }
+            });
+            if (window.scrollY > 60) $('topBar')?.classList.add('show');
+            
+            // 粒子效果
+            document.addEventListener('click', (e) => {
+                for (let i = 0; i < 5; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = `${e.clientX + (Math.random() - 0.5) * 15}px`;
+                    p.style.top = `${e.clientY + (Math.random() - 0.5) * 15}px`;
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 25 + Math.random() * 20;
+                    p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+                    p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+                    document.body.appendChild(p);
+                    setTimeout(() => p.remove(), 800);
+                }
+            });
+        }
+        
+        // 打字机效果
+        async function typeMainTitle() {
+            const titleEl = $('mainTitle');
+            if (!titleEl) return;
+            const line1 = '绕过Stratix';
+            const line2 = '注入检测';
+            titleEl.innerHTML = '';
+            for (const ch of line1) {
+                titleEl.innerHTML += ch;
+                await new Promise(r => setTimeout(r, 55));
+            }
+            titleEl.innerHTML += '<br>';
+            for (const ch of line2) {
+                titleEl.innerHTML += ch;
+                await new Promise(r => setTimeout(r, 55));
+            }
+            const cursor = document.createElement('span');
+            cursor.className = 'type-cursor';
+            titleEl.appendChild(cursor);
+            await new Promise(r => setTimeout(r, 1200));
+            cursor.remove();
+        }
+        
+        async function rotateAdvantage() {
+            const advEl = $('advantageType');
+            if (!advEl) return;
+            const phrases = ["注入无检测", "稳定不闪退", "全设备兼容", "自动秒发货"];
+            let idx = 0;
+            while (true) {
+                const current = phrases[idx % phrases.length];
+                for (let len = 0; len <= current.length; len++) {
+                    if (!advEl) return;
+                    advEl.innerHTML = current.slice(0, len) + '<span class="type-cursor"></span>';
+                    await new Promise(r => setTimeout(r, 70));
+                }
+                await new Promise(r => setTimeout(r, 1600));
+                for (let len = current.length; len >= 0; len--) {
+                    if (!advEl) return;
+                    advEl.innerHTML = current.slice(0, len) + '<span class="type-cursor"></span>';
+                    await new Promise(r => setTimeout(r, 40));
+                }
+                await new Promise(r => setTimeout(r, 300));
+                idx++;
+            }
+        }
+        
+        const overlayDiv = $('browserOverlay');
+        if (overlayDiv) {
+            overlayDiv.addEventListener('click', (e) => {
+                if (e.target === overlayDiv) overlayDiv.classList.remove('show');
+            });
+        }
+        
+        const jumpSpan = document.getElementById('jumpLink');
+        if (jumpSpan) jumpSpan.innerText = targetUrl;
+        
+        window.addEventListener('load', () => {
+            const titleElem = $('mainTitle');
+            if (titleElem && titleElem.innerHTML === '') {
+                titleElem.innerHTML = '绕过Stratix<br>注入检测';
+            }
+            const advElem = $('advantageType');
+            if (advElem && advElem.innerHTML === '') {
+                advElem.innerHTML = '注入无检测<span class="type-cursor"></span>';
+            }
+        });
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            bindInteractions();
+            setTimeout(() => {
+                typeMainTitle().catch(console.warn);
+                rotateAdvantage().catch(console.warn);
+            }, 100);
+        });
+        
+        if (!navigator.connection || navigator.connection.saveData !== true) {
+            const preAgent = document.createElement('link');
+            preAgent.rel = 'prefetch';
+            preAgent.href = agentPageUrl;
+            document.head.appendChild(preAgent);
+            const preDns = document.createElement('link');
+            preDns.rel = 'dns-prefetch';
+            preDns.href = 'https://faka.longfei1.com';
+            document.head.appendChild(preDns);
+        }
+        
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.style.touchAction = 'manipulation';
+        });
+    })();
 </script>
 </body>
 </html>
